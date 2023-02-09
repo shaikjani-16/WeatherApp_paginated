@@ -1,0 +1,62 @@
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+      integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+      crossorigin=""
+    ></script>
+    <style>
+      #mapid {
+        height: 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="mapid"></div>
+    <script>
+      var mymap = L.map("mapid").setView([0, 0], -1);
+
+      const attribution =
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+
+      const tileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+      const tiles = L.tileLayer(tileUrl, { attribution });
+      tiles.addTo(mymap);
+      const page = 1;
+      // Fetch the weather information for the cities
+
+      fetch(`http://localhost:3000/weather/${page}`)
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          // Loop through the data and add markers for each city
+          const dt = data["data"];
+          dt.forEach((city) => {
+            console.log(city);
+            console.log(city["coord"]);
+            console.log(city.name);
+            console.log();
+            var marker = L.marker([city["coord"].lat, city["coord"].lon]).addTo(
+              mymap
+            );
+            marker.bindPopup(
+              `<b>City:</b> ${city.name}<br><b>Temperature:</b>${city.main.temp}°C<br><b>Weather:</b> ${city["weather"][0].description}<br> <img src='http://openweathermap.org/img/wn/${city["weather"][0].icon}@2x.png' height="100px" width="100px">`
+            );
+          });
+        });
+      setInterval(function () {
+        page++;
+        if (page > 3) {
+          page = 1;
+        }
+        fetch(`http://localhost:3000/weather/${page}`);
+      }, 60000);
+    </script>
+  </body>
+</html>

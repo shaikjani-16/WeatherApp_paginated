@@ -7,7 +7,7 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + "/index.html");
 });
 
-app.get("/weather/:page", (req, res) => {
+app.get("https://weather-apip.onrender.com/weather/:page", (req, res) => {
   const cities = [
     "London",
     "Paris",
